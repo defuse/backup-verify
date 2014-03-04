@@ -194,8 +194,15 @@ def compareDirs( relative = "" )
   # Make sure both directories exist
   unless File.directory?( original ) and File.directory?( backup )
     STDOUT.puts "DIR: [#{original}] not found in [#{backup}]"
+    # The directory not existing counts as one difference.
     $diffCount += 1 
-    $diffCount += countItems( original ) if $options[:count]
+    if $options[:count]
+      # Then each item in the directory counts as yet another item processed and
+      # yet another difference.
+      item_count = countItems( original )
+      $itemCount += item_count
+      $diffCount += item_count
+    end
     return
   end
 
@@ -204,7 +211,6 @@ def compareDirs( relative = "" )
     Dir.foreach( original ) do |item|
       next if item == "." or item == ".."
       $itemCount += 1
-
       origPath = File.join( original, item )
       backupPath = File.join( backup, item )
 
@@ -260,6 +266,8 @@ trap( "SIGINT" ) do
   exit
 end
 
+# Count the "root" directory as an item processed.
+$itemCount += 1
 compareDirs
 printSummary
 
