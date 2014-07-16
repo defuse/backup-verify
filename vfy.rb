@@ -15,6 +15,7 @@
 #   DIR: - Directory in original missing from backup.
 #   FILE: - File in original missing from, or different, in backup.
 #   SKIP: - Skipping directory specified by --ignore.
+#   SYMMIS - Symlink mismatch (one is a symlink, one is a regular file, etc.).
 #   SYMLINK: - Symlink to directory skipped and not not following (no --follow).
 #   DIFFS - Not recursing into dir because it is on a different filesystem.
 #   ERROR: - Error reading file or directory.
@@ -126,13 +127,6 @@ $errorCount = 0
 # the random sample comparison test.
 def sameFile( fileA, fileB )
 
-  # If symlinks, make sure they link to the same thing.
-  if File.symlink?( fileA ) || File.symlink?( fileB )
-    return false unless File.symlink?( fileA ) and File.symlink?( fileB )
-    linkA = File.readlink( fileA )
-    linkB = File.readlink( fileB )
-    return linkA == linkB
-  end
 
   # Both exist.
   return false unless File.exists?( fileA ) and File.exists?( fileB )
@@ -213,6 +207,31 @@ def compareDirs( relative = "" )
       $itemCount += 1
       origPath = File.join( original, item )
       backupPath = File.join( backup, item )
+
+      # This check is independent of whether or not the path is a directory or
+      # a file. If either is a symlink, make sure they are both symlinks, and
+      # that they link to the same thing.
+      if File.symlink?( origPath ) || File.symlink?( backupPath )
+        if !(File.symlink?( origPath ) && File.symlink?( backupPath )) ||
+              File.readlink( origPath ) != File.readlink( backupPath )
+
+          STDOUT.puts "SYMMIS: Symlink mismatch [#{origPath}] and [#{backupPath}]"
+
+          # Count the missing file or directory.
+          $diffCount += 1
+
+          # If the original symlink was a directory, then the backup is missing
+          # that directory, PLUS all of that directory's contents.
+          if File.directory?( origPath ) && $options[:count]
+            item_count = countItems( origPath )
+            $itemCount += item_count
+            $diffCount += item_count
+          end
+
+          # We know these paths are different, so move on to the next one.
+          next
+        end
+      end
 
       if File.directory? origPath
         # Skip symlinks if told to do so...
