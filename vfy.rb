@@ -12,14 +12,14 @@
 # random sample of their contents, and the user is alerted if they differ.
 # 
 # Output prefixes:
-#   DIR: - Directory in original missing from backup.
-#   FILE: - File in original missing from, or different, in backup.
-#   SKIP: - Skipping directory specified by --ignore.
-#   SYMMIS - Symlink mismatch (one is a symlink, one is a regular file, etc.).
-#   SYMLINK: - Symlink to directory skipped and not not following (no --follow).
-#   DIFFS - Not recursing into dir because it is on a different filesystem.
-#   ERROR: - Error reading file or directory.
-#   DEBUG: - Debug information only shown when called with --verbose.
+#   DIR:      Directory in original missing from backup.
+#   FILE:     File in original missing from, or different, in backup.
+#   SKIP:     Skipping directory specified by --ignore.
+#   SYMMIS:   Symlink mismatch (one is a symlink, one is a regular file, etc.).
+#   SYMLINK:  Symlink to directory skipped and not not following (no --follow).
+#   DIFFS     Not recursing into dir because it is on a different filesystem.
+#   ERROR:    Error reading file or directory.
+#   DEBUG:    Debug information only shown when called with --verbose.
 
 require 'optparse'
 
