@@ -1,4 +1,4 @@
-
+require "test/unit"
 
 DIRECTORY_ROOT = "/tmp/"
 
@@ -26,6 +26,8 @@ class TestHelper
         self::FillContents(path, info[:contents])
       when 'symlink'
         throw "Symlink filling is not implemented yet!"
+      when 'mount'
+        throw "Mount filling is not implemented yet!"
       end
     end
   end
