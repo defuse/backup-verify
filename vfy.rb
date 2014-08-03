@@ -266,6 +266,8 @@ def printSummary
   differPercent = "%.2f" % ($diffCount.to_f / $itemCount.to_f * 100)
   if $options[:machine]
     STDOUT.puts "SUMMARY: items:#{$itemCount}, diff:#{$diffCount}, " +
+                # FIXME: Is the following ALWAYS true, e.g. with -c?
+                "similar:#{$itemCount - $diffCount}, " +
                 "diffpct:#{differPercent}, skip:#{$skippedCount}, " + 
                 "err:#{$errorCount}"
   else
