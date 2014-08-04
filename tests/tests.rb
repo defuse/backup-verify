@@ -104,42 +104,7 @@ class Tests < Test::Unit::TestCase
     assertResultsAsExpected(expected_results, actual_results)
   end
 
-  def test_missing_directory_no_count
-    TestHelper::FillContents($source_dir, {
-      'A.txt' => {
-        type: 'file',
-        contents: 'AAA',
-      },
-      'missingdir' => {
-        type: 'directory',
-        contents: {
-          'Z.txt' => {
-            type: 'file',
-            contents: 'ABC'
-          }
-        }
-      }
-    })
-    TestHelper::FillContents($backup_dir, {
-      'A.txt' => {
-        type: 'file',
-        contents: 'AAA',
-      }
-    })
-    expected_results = {
-      items_processed: 3,
-      similarities: 2,
-      differences: 1,
-      skipped: 0,
-      errors: 0,
-    }
-    actual_results = TestHelper::RunVerification(
-        [$source_dir, $backup_dir]
-    )
-    assertResultsAsExpected(expected_results, actual_results)
-  end
-
-  def test_missing_directory_with_count
+  def test_missing_directory
     TestHelper::FillContents($source_dir, {
       'A.txt' => {
         type: 'file',
@@ -169,7 +134,7 @@ class Tests < Test::Unit::TestCase
       errors: 0,
     }
     actual_results = TestHelper::RunVerification(
-        [$source_dir, $backup_dir, "-c"]
+        [$source_dir, $backup_dir]
     )
     assertResultsAsExpected(expected_results, actual_results)
   end
@@ -205,7 +170,7 @@ class Tests < Test::Unit::TestCase
     }
     ignored_path = File.join($source_dir, "missingdir_ignored")
     actual_results = TestHelper::RunVerification(
-        [$source_dir, $backup_dir, "-c", "-i", ignored_path]
+        [$source_dir, $backup_dir, "-i", ignored_path]
     )
     assertResultsAsExpected(expected_results, actual_results)
   end
@@ -250,7 +215,7 @@ class Tests < Test::Unit::TestCase
     }
     ignored_path = File.join($backup_dir, "missingdir_ignored")
     actual_results = TestHelper::RunVerification(
-        [$source_dir, $backup_dir, "-c", "-i", ignored_path]
+        [$source_dir, $backup_dir, "-i", ignored_path]
     )
     assertResultsAsExpected(expected_results, actual_results)
   end

@@ -57,13 +57,6 @@ optparse = OptionParser.new do |opts|
     $options[:one_filesystem] = true
   end
 
-  # If a folder in original doesn't exist in backup, the number of items in 
-  # the folder will be counted and added to the diff total if invoked with -c
-  $options[:count] = false
-  opts.on( '-c', '--count', 'Count files in unmatched directories' ) do
-    $options[:count] = true
-  end
-
   # Ignored directories can be specified either as a subfolder of original or 
   # backup. The option can be specified multiple times.
   $options[:ignore] = []
@@ -190,13 +183,11 @@ def compareDirs( relative = "" )
     STDOUT.puts "DIR: [#{original}] not found in [#{backup}]"
     # The directory not existing counts as one difference.
     $diffCount += 1 
-    if $options[:count]
-      # Then each item in the directory counts as yet another item processed and
-      # yet another difference.
-      item_count = countItems( original )
-      $itemCount += item_count
-      $diffCount += item_count
-    end
+    # Each item in the directory counts as yet another item processed and yet
+    # another difference.
+    item_count = countItems( original )
+    $itemCount += item_count
+    $diffCount += item_count
     return
   end
 
@@ -217,16 +208,11 @@ def compareDirs( relative = "" )
 
           STDOUT.puts "SYMMIS: Symlink mismatch [#{origPath}] and [#{backupPath}]"
 
-          # Count the missing file or directory.
+          # Count the differing symlink.
           $diffCount += 1
 
-          # If the original symlink was a directory, then the backup is missing
-          # that directory, PLUS all of that directory's contents.
-          if File.directory?( origPath ) && $options[:count]
-            item_count = countItems( origPath )
-            $itemCount += item_count
-            $diffCount += item_count
-          end
+          # FIXME: If follow symlinks is on, we want to count everything that
+          # was under that missing symlink directory too.
 
           # We know these paths are different, so move on to the next one.
           next
