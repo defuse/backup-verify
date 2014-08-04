@@ -1,4 +1,5 @@
 require "test/unit"
+require "fileutils"
 
 DIRECTORY_ROOT = "/tmp/"
 
@@ -12,7 +13,7 @@ class TestHelper
   end
 
   def self::DeleteTestDirectory(path)
-
+    FileUtils.rm_rf(path)
   end
 
   def self::FillContents(dir, contents)
@@ -35,11 +36,12 @@ class TestHelper
   # FIXME: Check exit status, do this better.
 
   def self::RunVerification(options)
-    command = ["ruby", "vfy.rb"] + options + ["-m"]
+    command = ["ruby", "tests/run-vfy-with-coverage.rb"] + options + ["-m"]
     result = {}
     IO.popen(command) do |p|
       output_lines = p.readlines
-      /SUMMARY: items:(\d+), diff:(\d+), similar:(\d+), diffpct:(.*), skip:(\d+), err:(\d+)/ =~ output_lines[-1]
+      # Last line is SimpleCov output. Second last is the one we want.
+      /SUMMARY: items:(\d+), diff:(\d+), similar:(\d+), diffpct:(.*), skip:(\d+), err:(\d+)/ =~ output_lines[-2]
       result = {
         items_processed: $1.to_i,
         differences: $2.to_i,
