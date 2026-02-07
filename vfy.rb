@@ -122,7 +122,7 @@ def sameFile( fileA, fileB )
 
 
   # Both exist.
-  return false unless File.exists?( fileA ) and File.exists?( fileB )
+  return false unless File.exist?( fileA ) and File.exist?( fileB )
   # Both are the same size.
   aBytes = File.stat( fileA ).size
   bBytes = File.stat( fileB ).size
@@ -138,8 +138,8 @@ def sameFile( fileA, fileB )
     same = same && aSample == bSample
   end
   return same
-rescue
-  STDOUT.puts "ERROR: Can't read file [#{fileA}]"
+rescue => e
+  STDOUT.puts "ERROR: Can't read file [#{fileA}] error [#{e}]"
   $errorCount += 1
   return true # So we don't get two messages for the same file
 end
@@ -243,6 +243,9 @@ def compareDirs( relative = "" )
       end
     end # Dir.foreach
   rescue Errno::EACCES
+    STDOUT.puts "ERROR: Can't read directory [#{original}]"
+    $errorCount += 1
+  rescue Errno::EINVAL
     STDOUT.puts "ERROR: Can't read directory [#{original}]"
     $errorCount += 1
   end
